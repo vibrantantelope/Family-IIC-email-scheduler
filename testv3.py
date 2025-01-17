@@ -46,12 +46,13 @@ unsent_follow_up = future_presentations[
 ]
 
 # ----------------------------------------------------------------------------- 
-# 3. SIMULATE EMAILS FOR TODAY
+# 3. SIMULATE EMAILS
 # ----------------------------------------------------------------------------- 
 print("=== EMAIL SIMULATION FOR TODAY ===")
-email_summary = []  # Collect all simulated emails for review
+email_summary_today = []  # Collect all today's simulated emails
+email_summary_future = []  # Collect all future emails for review
 
-# Process warm-up emails
+# Simulate warm-up emails for today
 for _, row in unsent_warm_up.iterrows():
     unit_number = row['unit number']
     presentation_date = row['presentation_date'].date()
@@ -74,23 +75,21 @@ for _, row in unsent_warm_up.iterrows():
             <p>You can donate securely at <a href="{DONATION_LINK}">{DONATION_LINK}</a>. Every gift—no matter the size—makes an impact.</p>
             <p>Thank you for your commitment to Scouting and for helping us prepare young people for life.</p>
             """
-            email_summary.append({
+            email_summary_today.append({
                 "Recipient Email": recipient_email,
                 "Subject": f"Reminder: Invest in Character Presentation for {unit_name}",
                 "Body": mail_body
             })
             print(f"  - {recipient_email}")
 
-# Process follow-up emails
+# Simulate follow-up emails for today
 for _, row in unsent_follow_up.iterrows():
     unit_number = row['unit number']
     presentation_date = row['presentation_date'].date()
     follow_up_date = row['Follow-Up Date'].date()
 
-    # Determine unit name
     unit_name = row['Unit Name'] if 'Unit Name' in row and pd.notna(row['Unit Name']) else f"Unit {unit_number}"
 
-    # Get unit members
     unit_members = members[members['unit number'].str.strip().str.lower() == unit_number.strip().lower()]
     print(f"\nSimulating Follow-Up Email for {unit_name} (Date: {follow_up_date}):")
 
@@ -104,12 +103,44 @@ for _, row in unsent_follow_up.iterrows():
             <p>Your support helps keep Scouting strong and ensures we can continue building tomorrow’s leaders.</p>
             <p>Thank you for your commitment to Scouting and for helping us prepare young people for life.</p>
             """
-            email_summary.append({
+            email_summary_today.append({
                 "Recipient Email": recipient_email,
                 "Subject": f"Thank You: Invest in Character Presentation for {unit_name}",
                 "Body": follow_up_body
             })
             print(f"  - {recipient_email}")
+
+# Simulate all future emails
+for _, row in future_presentations.iterrows():
+    unit_number = row['unit number']
+    presentation_date = row['presentation_date'].date()
+    warm_up_date = row['Warm-Up Date'].date()
+    follow_up_date = row['Follow-Up Date'].date()
+
+    unit_name = row['Unit Name'] if 'Unit Name' in row and pd.notna(row['Unit Name']) else f"Unit {unit_number}"
+
+    unit_members = members[members['unit number'].str.strip().str.lower() == unit_number.strip().lower()]
+    print(f"\nSimulating Future Emails for {unit_name}:")
+
+    # Simulate warm-up email
+    for _, member in unit_members.iterrows():
+        recipient_email = member['Email']
+        if pd.notna(recipient_email):
+            email_summary_future.append({
+                "Recipient Email": recipient_email,
+                "Subject": f"Reminder: Invest in Character Presentation for {unit_name}",
+                "Body": f"Simulated Warm-Up Email for {presentation_date}"
+            })
+
+    # Simulate follow-up email
+    for _, member in unit_members.iterrows():
+        recipient_email = member['Email']
+        if pd.notna(recipient_email):
+            email_summary_future.append({
+                "Recipient Email": recipient_email,
+                "Subject": f"Thank You: Invest in Character Presentation for {unit_name}",
+                "Body": f"Simulated Follow-Up Email for {presentation_date}"
+            })
 
 # ----------------------------------------------------------------------------- 
 # 4. MARK AS SENT
@@ -126,8 +157,14 @@ presentations.to_excel(presentation_dates_file, index=False)
 # ----------------------------------------------------------------------------- 
 # 5. DISPLAY SIMULATED EMAILS
 # ----------------------------------------------------------------------------- 
-print("\n=== SIMULATED EMAILS ===")
-for email in email_summary:
+print("\n=== SIMULATED EMAILS FOR TODAY ===")
+for email in email_summary_today:
+    print(f"\nTo: {email['Recipient Email']}")
+    print(f"Subject: {email['Subject']}")
+    print(f"Body: {email['Body']}")
+
+print("\n=== SIMULATED EMAILS FOR ALL FUTURE DATES ===")
+for email in email_summary_future:
     print(f"\nTo: {email['Recipient Email']}")
     print(f"Subject: {email['Subject']}")
     print(f"Body: {email['Body']}")
