@@ -6,7 +6,7 @@ import yagmail
 # CONFIGURATION
 # ----------------------------------------------------------------------------- 
 EMAIL_SENDER = "invest-in-character@trailblazer-ptac.org"
-EMAIL_PASSWORD = "gicc njub rabc autd"
+EMAIL_PASSWORD = "YOUR APP PASSWORD"
 DONATION_LINK = "https://tinyurl.com/2025InvestInCharacter"
 
 # File paths
